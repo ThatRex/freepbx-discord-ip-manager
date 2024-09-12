@@ -1,15 +1,12 @@
-import { exec } from 'child_process'
 import { ApplicationCommandOptionType, CommandInteraction, User } from 'discord.js'
 import { Discord, Guard, Slash, SlashGroup, SlashOption } from 'discordx'
 import { IPV4_REGEX } from '../lib/regex.js'
-import util from 'util'
 import { db, schema } from '../lib/db/index.js'
 import { and, asc, eq, sql } from 'drizzle-orm'
 import { ErrorHandler } from '../guards/error-handler.js'
 import moment from 'moment'
 import { env } from '../lib/environment.js'
-
-const execPromise = util.promisify(exec)
+import { execPromise } from '../lib/utils/exec-promise.js'
 
 const { ipLogs } = schema
 
@@ -210,6 +207,6 @@ class IP {
 
     private async isTrustedIP(ip: string) {
         const output = await execPromise(`fwconsole firewall list trusted | grep ${ip}`)
-        return !!output.stdout
+        return !!output
     }
 }

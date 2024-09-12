@@ -2,10 +2,7 @@ import cron from 'node-cron'
 import { db, schema } from '../lib/db/index.js'
 import { sql } from 'drizzle-orm'
 import { dev, env } from '../lib/environment.js'
-import { exec } from 'child_process'
-import util from 'util'
-
-const execPromise = util.promisify(exec)
+import { execPromise } from '../lib/utils/exec-promise.js'
 
 const { ipLogs } = schema
 
