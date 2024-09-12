@@ -8,11 +8,7 @@ export const bot = new Client({
     // botGuilds: [(client) => client.guilds.cache.map((guild) => guild.id)],
 
     // Discord intents
-    intents: [
-        IntentsBitField.Flags.Guilds,
-        IntentsBitField.Flags.GuildMembers,
-        IntentsBitField.Flags.GuildMessages,
-    ],
+    intents: [IntentsBitField.Flags.Guilds],
 
     // Debug logs are disabled in silent mode
     silent: false,
