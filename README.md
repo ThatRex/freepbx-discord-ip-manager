@@ -89,3 +89,6 @@ exten => outbound,1,NoOp(Checking Outbound Blacklist)
  same => n,ExecIf($["${BLACKLISTED_NUM}"!=""]?Hangup())
  same => n,Return()
 ```
+# Bot Command Perms
+
+By default, all commands are available to everyone. You can change this under **Server Settings > Integrations > Your Bot**.
