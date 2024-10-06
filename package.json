@@ -1,8 +1,7 @@
 {
-  "name": "fpbx-manager",
+  "name": "freepbx-discord-ip-manager",
   "version": "1.0.0",
   "private": true,
-  "license": "MIT",
   "type": "module",
   "main": "build/main.js",
   "scripts": {

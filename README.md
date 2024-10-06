@@ -1,99 +1,91 @@
-<div>
-  <p align="center">
-    <a href="https://discordx.js.org" target="_blank" rel="nofollow">
-      <img src="https://discordx.js.org/discordx.svg" width="546" />
-    </a>
-  </p>
-  <p align="center">
-    <a href="https://discordx.js.org/discord"
-      ><img
-        src="https://img.shields.io/discord/874802018361950248?color=5865F2&logo=discord&logoColor=white"
-        alt="Discord server"
-    /></a>
-    <a href="https://www.npmjs.com/package/discordx"
-      ><img
-        src="https://img.shields.io/npm/v/discordx.svg?maxAge=3600"
-        alt="NPM version"
-    /></a>
-    <a href="https://www.npmjs.com/package/discordx"
-      ><img
-        src="https://img.shields.io/npm/dt/discordx.svg?maxAge=3600"
-        alt="NPM downloads"
-    /></a>
-    <a href="https://github.com/discordx-ts/discordx/actions"
-      ><img
-        src="https://github.com/discordx-ts/discordx/workflows/Build/badge.svg"
-        alt="Build status"
-    /></a>
-    <a href="https://www.paypal.me/vijayxmeena"
-      ><img
-        src="https://img.shields.io/badge/donate-paypal-F96854.svg"
-        alt="paypal"
-    /></a>
-  </p>
-  <p align="center">
-    <b> Create a discord bot with TypeScript and Decorators! </b>
-  </p>
-</div>
+# FreePBX Discord IP Manager
 
-# 📖 Introduction
+_Tested on FreePBX 17_
 
-A blank template with one command and one event, This is a useful template if you want to quickly spin up a project.
+> [!NOTE]
+> This bot was created for FreePBX systems I help manage. It is not thoroughly tested, and the instructions assume you know what you are doing.
 
-# 🏗 Development
+# Setup
 
-```
-npm install
-npm run dev
-```
+1. Change directory to `/opt/`, then clone this repo.
 
-If you want to use [Nodemon](https://nodemon.io/) to auto-reload while in development:
+    ```bash
+    cd /opt/
+    git clone https://github.com/ThatRex/freepbx-discord-ip-manager
+    ```
 
-```
-npm run watch
-```
+2. Change directory to `freepbx-discord-ip-manager`, then setup the bot.
 
-# 💻 Production
+    ```bash
+    cd freepbx-discord-ip-manager/
+    npm install
+    npm run build
+    npm run db:migration:run
+    ```
 
-```
-npm install --production
-npm run build
-npm run start
-```
+3. Create a service file.
+    ```
+    nano /etc/systemd/system/ipman-bot.service
+    ```
+4. Copy the following contents into the service file replacing `REPLACE_WITH_TOKEN` with your bot token.
 
-# 🐋 Docker
+    ```bash
+    [Unit]
+    Description=freepbx-discord-ip-manager
 
-To start your application:
+    [Service]
+    WorkingDirectory=/opt/freepbx-discord-ip-manager/
+    ExecStart=/usr/bin/node build/main.js
+    Restart=always
+    User=root
+    Environment="NODE_ENV=production"
+    Environment="BOT_TOKEN=REPLACE_WITH_TOKEN"
+    Environment="IP_ABUSE_CONFIDENCE_SCORE_REJECTION_PERCENTAGE=50"
+    Environment="BLACKLIST_CSV=/etc/asterisk/_blacklist_outbound.csv"
+    Environment="IP_TRUST_TIMEOUT_HOURS=24"
+    Environment="ABUSEIPDB_KEY="
 
-```
-docker-compose up -d
-```
+    [Install]
+    WantedBy=multi-user.target
+    ```
 
-To shut down your application:
+5. Run the following command then you can [manage the bot service.](#managing-the-service)
 
-```
-docker-compose down
+    ```bash
+    systemctl daemon-reload
+    ```
+
+# Managing The Service
+
+```bash
+# start and stop service
+systemctl start ipman-bot
+systemctl stop ipman-bot
+
+# view status and logs
+systemctl status ipman-bot
+tail -n 20 -f /var/log/syslog # display last 20 lines and follow syslog
+
+# enable and disable service (autostart)
+systemctl enable ipman-bot
+systemctl disable ipman-bot
 ```
 
-To view your application's logs:
+# Using Number Blacklist
 
+Place the following into `extensions_custom.conf
+` under **Admin > Config Edit**.
+
+```ini
+[macro-dialout-trunk-predial-hook]
+exten => s,1,NoOp()
+ same => n,Gosub(check-blacklist,outbound,1(${DIAL_NUMBER}))
+ same => n,Return()
+
+[check-blacklist]
+exten => outbound,1,NoOp(Checking Outbound Blacklist)
+ same => n,Set(BLACKLISTED_NUM=${SHELL(grep ^${ARG1} "${ASTETCDIR}/_blacklist_outbound.csv" | tr -d "\r\n")})
+ same => n,ExecIf($["${BLACKLISTED_NUM}"!=""]?Playback(privacy-this-number-is&privacy-blacklisted))
+ same => n,ExecIf($["${BLACKLISTED_NUM}"!=""]?Hangup())
+ same => n,Return()
 ```
-docker-compose logs
-```
-
-For the full command list please view the [Docker Documentation](https://docs.docker.com/engine/reference/commandline/cli/).
-
-# 📜 Documentation
-
-- [discordx.js.org](https://discordx.js.org)
-- [Tutorials (dev.to)](https://dev.to/samarmeena/series/14317)
-
-# ☎️ Need help?
-
-- [Check frequently asked questions](https://discordx.js.org/docs/faq)
-- [Check examples](https://github.com/discordx-ts/discordx/tree/main/packages/discordx/examples)
-- Ask in the community [Discord server](https://discordx.js.org/discord)
-
-# 💖 Thank you
-
-You can support [discordx](https://www.npmjs.com/package/discordx) by giving it a [GitHub](https://github.com/discordx-ts/discordx) star.
