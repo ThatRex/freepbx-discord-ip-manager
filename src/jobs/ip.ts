@@ -7,18 +7,16 @@ import { execPromise } from '../lib/utils/exec-promise.js'
 const { ipLogs } = schema
 
 const untrustTimedOutIPs = async () => {
-    if (!env.IP_TRUST_TIMEOUT_HOURS) return
+    const hours = env.IP_TRUST_TIMEOUT_HOURS
+    if (!hours) return
 
     console.log('Untrusting Timedout IPs.')
     try {
-        const hours = env.IP_TRUST_TIMEOUT_HOURS.toString()
-
         const records = await db
             .update(ipLogs)
             .set({ timestamp_untrusted: sql`CURRENT_TIMESTAMP` })
             .where(
-                sql`${ipLogs.timestamp} <= datetime('now', '-${sql.raw(hours)} hours') 
-                    AND ${ipLogs.timestamp_untrusted} == ''`
+                sql`${ipLogs.timestamp_untrusted} IS NULL AND ${ipLogs.timestamp} <= datetime('now', '-${sql.raw(hours.toString())} hours')`
             )
             .returning({ ip: ipLogs.ipv4 })
 
