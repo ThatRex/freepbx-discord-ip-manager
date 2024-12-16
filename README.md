@@ -43,7 +43,7 @@ _Tested on FreePBX 17_
     User=root
     Environment="NODE_ENV=production"
     Environment="BOT_TOKEN=REPLACE_WITH_TOKEN"
-    Environment="IP_ABUSE_CONFIDENCE_SCORE_REJECTION_PERCENTAGE=50"
+    Environment="IP_ABUSE_CONFIDENCE_REJECTION_PERCENTAGE=50"
     Environment="BLACKLIST_CSV=/etc/asterisk/_blacklist_outbound.csv"
     Environment="IP_TRUST_TIMEOUT_HOURS=24"
     Environment="ABUSEIPDB_KEY="

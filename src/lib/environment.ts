@@ -1,7 +1,5 @@
+import 'dotenv/config'
 import { z } from 'zod'
-
-export const env = process.env
-export const dev = env.NODE_ENV?.toLowerCase() !== 'production'
 
 const envSchema = z.object({
     BOT_TOKEN: z.string(),
@@ -13,10 +11,16 @@ const envSchema = z.object({
         .optional()
         .default('50')
         .transform(Number),
-    BLACKLIST_CSV: z.string()
+    BLACKLIST_CSV: z.string(),
 })
 
-envSchema.parse(process.env)
+const parsed = envSchema.parse(process.env)
+
+// @ts-ignore
+process.env = { ...process.env, ...parsed }
+
+export const env = process.env
+export const dev = env.NODE_ENV?.toLowerCase() !== 'production'
 
 declare global {
     namespace NodeJS {

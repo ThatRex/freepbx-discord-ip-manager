@@ -136,7 +136,7 @@ class IP {
                     env.IP_ABUSE_CONFIDENCE_REJECTION_PERCENTAGE
                 ) {
                     reject = true
-                    rejectReason = `IP abuse confidence score is to high.`
+                    rejectReason = `IP abuse confidence score is too high.`
                 }
             }
         }
