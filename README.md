@@ -12,6 +12,7 @@ _Tested on FreePBX 17_
     ```bash
     cd /opt/
     git clone https://github.com/ThatRex/freepbx-discord-ip-manager
+
     ```
 
 2. Change directory to `freepbx-discord-ip-manager`, then setup the bot.
@@ -21,11 +22,13 @@ _Tested on FreePBX 17_
     npm install
     npm run build
     npm run db:migration:run
+
     ```
 
 3. Create a service file.
     ```
     nano /etc/systemd/system/ipman-bot.service
+
     ```
 4. Copy the following contents into the service file replacing `REPLACE_WITH_TOKEN` with your bot token.
 
@@ -49,32 +52,70 @@ _Tested on FreePBX 17_
     WantedBy=multi-user.target
     ```
 
-5. Run the following command then you can [manage the bot service.](#managing-the-service)
+5. Run the following command, then you can [manage the bot service.](#managing-service)
 
     ```bash
     systemctl daemon-reload
+
     ```
 
-# Managing The Service
+# Managing Service
 
 ```bash
 # start and stop service
 systemctl start ipman-bot
 systemctl stop ipman-bot
+systemctl restart ipman-bot
 
 # view status and logs
 systemctl status ipman-bot
-tail -n 20 -f /var/log/syslog # display last 20 lines and follow syslog
+journalctl -u ipman-bot | tail -n 100 # display last 100 lines of service log
 
 # enable and disable service (autostart)
 systemctl enable ipman-bot
 systemctl disable ipman-bot
 ```
+# Bot Command Perms
+
+By default, all commands are available to everyone. You can change this under **Server Settings > Integrations > Your Bot**.
+
+# Updating Bot
+If you already have the bot setup you can update it by doing the following.
+1. Change to the bot directory, then pull changes from the git repo.
+    ```bash
+    cd /opt/freepbx-discord-ip-manager/
+    git pull
+
+    ```
+2. Install new dependencies. Build updated bot. Run DB migrations.
+    ```bash
+    npm install
+    npm run build
+    npm run db:migration:run
+
+    ```
+3. Restart bot service.
+    ```bash
+    systemctl restart ipman-bot
+
+    ```
+# Removing Bot
+1. Stop and disable bot service.
+    ```bash
+    systemctl stop ipman-bot
+    systemctl disable ipman-bot
+    
+    ```
+2. Delete service file and bot directory.
+    ```
+    rm /etc/systemd/system/ipman-bot.service
+    rm -r /opt/freepbx-discord-ip-manager/
+
+    ```
 
 # Using Number Blacklist
 
-Place the following into `extensions_custom.conf
-` under **Admin > Config Edit**.
+Place the following into `extensions_custom.conf` under **Admin > Config Edit**.
 
 ```ini
 [macro-dialout-trunk-predial-hook]
@@ -89,6 +130,3 @@ exten => outbound,1,NoOp(Checking Outbound Blacklist)
  same => n,ExecIf($["${BLACKLISTED_NUM}"!=""]?Hangup())
  same => n,Return()
 ```
-# Bot Command Perms
-
-By default, all commands are available to everyone. You can change this under **Server Settings > Integrations > Your Bot**.
